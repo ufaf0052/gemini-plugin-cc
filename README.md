@@ -27,7 +27,7 @@ Add the marketplace in Claude Code:
 Install the plugin:
 
 ```bash
-/plugin install gemini-reviewer@gemini-plugin-cc
+/plugin install gemini@gemini-plugin-cc
 ```
 
 Reload plugins:

@@ -9,13 +9,13 @@
   },
   "plugins": [
     {
-      "name": "gemini-reviewer",
+      "name": "gemini",
       "description": "Use Gemini from Claude Code to review code or delegate tasks.",
       "version": "1.0.0",
       "author": {
         "name": "IOC Admin"
       },
-      "source": "./plugins/gemini-reviewer"
+      "source": "./plugins/gemini"
     }
   ]
 }
