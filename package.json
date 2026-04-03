@@ -8,6 +8,9 @@
   "engines": {
     "node": ">=18.18.0"
   },
+  "author": {
+    "name": "ufaf0052"
+  },
   "scripts": {
     "test": "node --test tests/*.test.mjs"
   }
