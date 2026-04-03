@@ -168,10 +168,12 @@ function handleSetup(argv) {
 
 function buildAdversarialReviewPrompt(context, focusText) {
   const template = loadPromptTemplate(ROOT_DIR, "adversarial-review");
+  const schema = readOutputSchema(REVIEW_SCHEMA);
   return interpolateTemplate(template, {
     TARGET_LABEL: context.target.label,
     USER_FOCUS: focusText || "No extra focus provided.",
-    REVIEW_INPUT: context.content
+    REVIEW_INPUT: context.content,
+    OUTPUT_SCHEMA: schema ? JSON.stringify(schema, null, 2) : ""
   });
 }
 
