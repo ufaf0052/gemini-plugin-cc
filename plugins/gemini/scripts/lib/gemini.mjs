@@ -4,7 +4,7 @@ import fs from "node:fs";
 import { binaryAvailable } from "./process.mjs";
 
 const GEMINI_BIN = process.env.GEMINI_BIN || "/opt/node/bin/gemini";
-const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-2.5-pro";
+const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3-flash-preview";
 const EXEC_TIMEOUT_MS = Number(process.env.GEMINI_TIMEOUT_MS) || 600_000;
 
 export function getGeminiAvailability() {
