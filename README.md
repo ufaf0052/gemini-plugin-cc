@@ -141,7 +141,7 @@ Cancel an active background Gemini job.
 
 This plugin is modeled after [openai/codex-plugin-cc](https://github.com/openai/codex-plugin-cc). Key differences:
 
-- **No app-server/broker** — Gemini CLI is invoked directly via `execFile` (stateless)
+- **No app-server/broker** — Gemini CLI is invoked via `spawn` with stdin pipe (stateless)
 - **No persistent sessions** — no thread resume or session management
 - **Adversarial by default** — both `/gemini:review` and `/gemini:adversarial-review` use the same XML-structured adversarial prompt with grounding rules, calibration rules, and structured JSON output
 
@@ -150,9 +150,40 @@ This plugin is modeled after [openai/codex-plugin-cc](https://github.com/openai/
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `GEMINI_BIN` | `/opt/node/bin/gemini` | Path to Gemini CLI binary |
-| `GEMINI_MODEL` | `gemini-2.5-pro` | Model to use |
+| `GEMINI_MODEL` | `gemini-3-flash-preview` | Model to use |
 | `GEMINI_TIMEOUT_MS` | `600000` (10 min) | CLI execution timeout |
+
+**Important**: `GEMINI_MODEL` in shell profile (e.g. `~/.bashrc`) takes precedence over the code default. If reviews are unexpectedly slow or timing out, check `echo $GEMINI_MODEL` first.
+
+## Troubleshooting
+
+### Gemini review hangs or times out in pipelines
+
+**Symptom**: Reviews work in interactive terminal but hang when run from `claude -p` or CI pipelines.
+
+**Root cause**: Gemini CLI Issue [#6715](https://github.com/google-gemini/gemini-cli/issues/6715) — the CLI hangs when spawned as a subprocess via `child_process`.
+
+**Fix (applied in v1.0.1+)**: `runGeminiPrompt()` uses `spawn()` + stdin pipe instead of `execFile()` + `-p` argument. The prompt is written to stdin; `-p ""` triggers non-interactive mode.
+
+### Wrong model being used
+
+**Symptom**: `ps aux | grep gemini` shows a different model than configured in code.
+
+**Root cause**: `GEMINI_MODEL` environment variable in `~/.bashrc` or `~/.profile` overrides the code default.
+
+**Fix**: Update or remove the env var:
+```bash
+# Check current value
+echo $GEMINI_MODEL
+
+# Update in ~/.bashrc
+export GEMINI_MODEL=gemini-3-flash-preview
+```
+
+### Partial output on timeout
+
+When a review times out, the plugin now returns any partial stdout collected before the kill signal, instead of discarding it. This means slow reviews may still produce usable findings.
 
 ## License
 
-MIT
+Apache-2.0
