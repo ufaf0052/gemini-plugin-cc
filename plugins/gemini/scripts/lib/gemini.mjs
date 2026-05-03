@@ -1,9 +1,24 @@
-import { spawn } from "node:child_process";
+import { execSync, spawn } from "node:child_process";
 import fs from "node:fs";
 
 import { binaryAvailable } from "./process.mjs";
 
-const GEMINI_BIN = process.env.GEMINI_BIN || "/opt/node/bin/gemini";
+// Resolve gemini binary in this priority order:
+//   1. $GEMINI_BIN — explicit override (CI / docker / multi-install setups)
+//   2. `command -v gemini` via PATH — works for nvm, asdf, brew, npm-global, system installs
+//   3. `/opt/node/bin/gemini` — legacy default for environments where $PATH was empty
+//      (e.g. some sandboxed subprocesses)
+function _resolveGeminiBin() {
+  if (process.env.GEMINI_BIN) return process.env.GEMINI_BIN;
+  try {
+    const found = execSync("command -v gemini", { encoding: "utf8", stdio: ["pipe", "pipe", "ignore"] }).trim();
+    if (found) return found;
+  } catch {
+    /* command -v exits non-zero if not found — fall through to legacy default */
+  }
+  return "/opt/node/bin/gemini";
+}
+const GEMINI_BIN = _resolveGeminiBin();
 const GEMINI_MODEL = process.env.GEMINI_MODEL || "gemini-3-flash-preview";
 const EXEC_TIMEOUT_MS = Number(process.env.GEMINI_TIMEOUT_MS) || 600_000;
 
